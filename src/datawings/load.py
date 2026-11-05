@@ -39,7 +39,11 @@ def load_table(name: str, parse: bool = True) -> pd.DataFrame:
     if not parse:
         return pd.read_csv(path, dtype=str, keep_default_na=False)
 
-    df = pd.read_csv(path, dtype={c: "string" for c in ("crew_id", "flight_key", "duty_id")})
+    # IDs are labels, not numbers: read every *_id / *_key column as text. Without this,
+    # sparse ones like duty.rotation_id (blank on non-flying days) come back as mixed types.
+    header = pd.read_csv(path, nrows=0).columns
+    id_cols = {c: "string" for c in header if c.endswith(("_id", "_key"))}
+    df = pd.read_csv(path, dtype=id_cols)
 
     for col in UTC_COLS.get(name, []):
         df[col] = pd.to_datetime(df[col], utc=True, errors="coerce")
