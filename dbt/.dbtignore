@@ -1,0 +1,2 @@
+# Jupyter Lab backup copies: dbt would otherwise parse them as models
+.ipynb_checkpoints/

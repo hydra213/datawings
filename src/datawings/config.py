@@ -8,10 +8,12 @@ DATA_DIR = ROOT / "data"
 RAW_DIR = DATA_DIR / "raw"
 INTERIM_DIR = DATA_DIR / "interim"
 PROCESSED_DIR = DATA_DIR / "processed"
-SQL_DIR = ROOT / "sql"
+DBT_DIR = ROOT / "dbt"
 FIGURES_DIR = ROOT / "reports" / "figures"
-DB_PATH = DATA_DIR / "datawings.duckdb"
+DB_PATH = DATA_DIR / "datawings.duckdb"  # bronze landed by ingest.py, silver/gold built by dbt
 
+# Source files in data/raw — each lands as bronze.<name>. ftl_rule is external (regulator /
+# policy) so it's ingested like any other source; only our own mappings are dbt seeds.
 TABLES = [
     "crew",
     "qualification",
@@ -23,6 +25,6 @@ TABLES = [
 ]
 
 # Hub station. duty_date is a LOCAL (DWB) date; all *_utc columns are UTC.
-# Assumption: DWB behaves like DXB, i.e. UTC+4 with no DST. Confirm before relying on it.
+# DWB is Dubai (DXB) in disguise: UTC+4, no DST.
 HUB = "DWB"
 HUB_UTC_OFFSET_HOURS = 4

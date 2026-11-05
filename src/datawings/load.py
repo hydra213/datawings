@@ -1,6 +1,6 @@
-"""pandas loaders. These do the *mechanical* typing only (ids as strings, timestamps as
-UTC datetimes). Business cleaning — rank spellings, qualification validity, etc. — belongs
-in clean.py so you can see exactly what you changed."""
+"""pandas loaders straight off the raw CSVs, bypassing dbt. Mechanical typing only.
+Use these for profiling, and for parity checks: answer a question in pandas from raw,
+then check it matches what the dbt gold layer says."""
 
 import pandas as pd
 

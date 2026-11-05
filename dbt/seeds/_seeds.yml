@@ -1,0 +1,15 @@
+version: 2
+
+# Seeds = small reference data WE own and version in git (our decisions, not a source system's).
+# Loaded into the `ref` schema.
+seeds:
+  - name: rank_map
+    description: Maps every rank spelling seen in source to CAPT / FO / PURSER / CABIN. Add a row when a new variant appears.
+    columns:
+      - name: raw_rank
+        data_tests: [not_null, unique]
+      - name: clean_rank
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["CAPT", "FO", "PURSER", "CABIN"]

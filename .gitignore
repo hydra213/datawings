@@ -6,6 +6,13 @@ __pycache__/
 .ruff_cache/
 .ipynb_checkpoints/
 
+# dbt
+dbt/target/
+dbt/logs/
+dbt/dbt_packages/
+dbt/.user.yml
+logs/
+
 # Data — internal Emirates challenge data, keep it out of git
 data/raw/*
 data/interim/*

@@ -11,7 +11,11 @@ dependencies = [
     "openpyxl>=3.1",
     "matplotlib>=3.9",
     "plotly>=5.24",
+    "dbt-duckdb>=1.11.1",
 ]
+
+[project.scripts]
+ingest = "datawings.ingest:main"
 
 [dependency-groups]
 dev = [
@@ -19,6 +23,8 @@ dev = [
     "ipykernel>=6.29",
     "pytest>=8.3",
     "ruff>=0.7",
+    "sqlfluff>=4.5.0",
+    "pre-commit>=4.7.0",
 ]
 
 [build-system]

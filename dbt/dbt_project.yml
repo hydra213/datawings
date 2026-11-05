@@ -1,0 +1,26 @@
+name: datawings
+version: "0.1.0"
+profile: datawings
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+# Bronze is landed by `uv run ingest` before dbt runs. dbt starts at silver.
+# Run dbt from this dbt/ folder (profiles.yml and relative paths assume it).
+
+models:
+  datawings:
+    silver:
+      +schema: silver
+      +materialized: table
+    gold:
+      +schema: gold
+      +materialized: table
+
+seeds:
+  datawings:
+    +schema: ref
