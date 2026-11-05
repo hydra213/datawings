@@ -2,6 +2,10 @@ name: datawings
 version: "0.1.0"
 profile: datawings
 
+# no telemetry to dbt Labs from a project holding internal data
+flags:
+  send_anonymous_usage_stats: false
+
 model-paths: ["models"]
 seed-paths: ["seeds"]
 macro-paths: ["macros"]

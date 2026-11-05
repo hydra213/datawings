@@ -11,3 +11,31 @@ models:
         data_tests: [not_null]
       - name: max_fdp_h
         data_tests: [not_null]
+  - name: dim_crew
+    description: Descriptive table for all crew members. Join with fct_duty on crew_id
+    columns:
+      - name: crew_id
+        data_tests: [not_null, unique]
+      - name: seniority_band
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments: {values: ['0-2 years', '2-5 years', '5-10 years', '10+ years']}
+  - name: fct_crew_day
+    description: >
+      One row per crew member per calendar date (every date, incl. days with no duty), with
+      rolling 7-day duty hours, 28-day block hours, days off, headroom and breach flags.
+    columns:
+      - name: crew_day_id
+        description: crew_id|date. Unique = the spine has exactly one row per crew per day.
+        data_tests: [not_null, unique]
+      - name: crew_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_crew')
+                field: crew_id
+      - name: duty_7d_h
+        data_tests: [not_null]
+      - name: block_28d_h
+        data_tests: [not_null]
