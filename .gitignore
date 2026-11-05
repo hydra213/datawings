@@ -1,0 +1,26 @@
+# Python / uv
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Data — internal Emirates challenge data, keep it out of git
+data/raw/*
+data/interim/*
+data/processed/*
+!data/**/.gitkeep
+*.duckdb
+*.duckdb.wal
+docs/crew_data_dictionary.xlsx
+
+# Outputs
+reports/figures/*
+!reports/figures/.gitkeep
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
