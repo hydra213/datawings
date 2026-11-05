@@ -1,0 +1,104 @@
+version: 2
+
+# Bronze = the CSVs exactly as delivered, all text, landed by `uv run ingest`.
+# Tests here are warn-only: dirty source data is expected and is what silver handles.
+# The failing counts are findings (docs/findings.md). In silver the same rules are errors.
+
+sources:
+  - name: bronze
+    schema: bronze
+    loaded_at_field: "cast(_loaded_at as timestamp)"
+    freshness:
+      warn_after: {count: 7, period: day}
+    tables:
+      - name: crew
+        columns:
+          - name: crew_id
+            data_tests: [not_null, unique]
+          - name: join_date
+            data_tests:
+              - matches_pattern:
+                  arguments: {pattern: '^\d{2}/\d{2}/\d{4}$'}
+          - name: leave_date
+            data_tests:
+              - matches_pattern:
+                  arguments: {pattern: '^\d{2}/\d{2}/\d{4}$'}
+
+      - name: qualification
+        columns:
+          - name: qual_id
+            data_tests: [not_null, unique]
+          - name: crew_id
+            data_tests:
+              - relationships:
+                  arguments:
+                    to: "source('bronze', 'crew')"
+                    field: crew_id
+          - name: expiry_date
+            data_tests:
+              - matches_pattern:
+                  arguments: {pattern: '^\d{4}-\d{2}-\d{2}$'}
+
+      - name: duty
+        columns:
+          - name: duty_id
+            data_tests: [not_null, unique]
+          - name: crew_id
+            data_tests:
+              - relationships:
+                  arguments:
+                    to: "source('bronze', 'crew')"
+                    field: crew_id
+          - name: duty_type
+            data_tests:
+              - accepted_values:
+                  arguments:
+                    values: [FLIGHT, STANDBY, GROUND, SIM, DAYOFF, LEAVE, SICK]
+          - name: actual_report_utc
+            data_tests:
+              - matches_pattern:
+                  arguments: {pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$'}
+
+      - name: duty_leg
+        columns:
+          - name: duty_leg_id
+            data_tests: [not_null, unique]
+          - name: duty_id
+            data_tests:
+              - relationships:
+                  arguments:
+                    to: "source('bronze', 'duty')"
+                    field: duty_id
+          - name: flight_key
+            data_tests:
+              - relationships:
+                  arguments:
+                    to: "source('bronze', 'flight')"
+                    field: flight_key
+
+      - name: flight
+        columns:
+          - name: flight_key
+            data_tests: [not_null, unique]
+          - name: status
+            data_tests:
+              - accepted_values:
+                  arguments: {values: [ONTIME, DELAY, DIVERT, CANCEL]}
+
+      - name: disruption_event
+        columns:
+          - name: event_id
+            data_tests: [not_null, unique]
+          - name: crew_id
+            data_tests:
+              - relationships:
+                  arguments:
+                    to: "source('bronze', 'crew')"
+                    field: crew_id
+          - name: resolution_action
+            data_tests: [not_null]
+
+      - name: ftl_rule
+        columns:
+          - name: rule_id
+            data_tests: [not_null, unique]

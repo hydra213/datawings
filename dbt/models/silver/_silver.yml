@@ -1,0 +1,72 @@
+version: 2
+
+# Silver = typed, trimmed, conformed. Every row kept; problems become dq_* flags.
+# These tests are errors: if one fails, a silver rule is wrong or the source changed.
+
+models:
+  - name: silver_crew
+    columns:
+      - name: crew_id
+        data_tests: [not_null, unique]
+      - name: rank
+        data_tests:
+          - accepted_values:
+              arguments: {values: [CAPT, FO, PURSER, CABIN]}
+      - name: join_date
+        data_tests: [not_null]
+
+  - name: silver_qualification
+    columns:
+      - name: qual_id
+        data_tests: [not_null, unique]
+      - name: crew_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: "ref('silver_crew')"
+                field: crew_id
+      - name: expiry_date
+        data_tests: [not_null]
+
+  - name: silver_duty
+    columns:
+      - name: duty_id
+        data_tests: [not_null, unique]
+      - name: crew_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: "ref('silver_crew')"
+                field: crew_id
+      - name: duty_date
+        data_tests: [not_null]
+
+  - name: silver_duty_leg
+    columns:
+      - name: duty_leg_id
+        data_tests: [not_null, unique]
+      - name: duty_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: "ref('silver_duty')"
+                field: duty_id
+
+  - name: silver_flight
+    columns:
+      - name: flight_key
+        data_tests: [not_null, unique]
+      - name: sched_dep_utc
+        data_tests: [not_null]
+
+  - name: silver_disruption_event
+    columns:
+      - name: event_id
+        data_tests: [not_null, unique]
+      - name: resolution_action
+        data_tests: [not_null]
+
+  - name: silver_ftl_rule
+    columns:
+      - name: rule_id
+        data_tests: [not_null, unique]

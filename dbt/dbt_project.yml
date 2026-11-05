@@ -24,3 +24,10 @@ models:
 seeds:
   datawings:
     +schema: ref
+
+# Source tests on bronze only warn: dirty source data is expected, and the failing counts are
+# findings. Tests on silver and gold keep the default severity (error).
+data_tests:
+  datawings:
+    bronze:
+      +severity: warn

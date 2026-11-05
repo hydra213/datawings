@@ -31,3 +31,6 @@ reports/figures/*
 Thumbs.db
 .vscode/
 .idea/
+
+# Profiling output: contains values from the challenge data
+reports/profile/

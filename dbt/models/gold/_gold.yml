@@ -1,0 +1,13 @@
+version: 2
+
+models:
+  - name: fct_duty
+    description: One row per FLIGHT duty with its FDP limit and breach flags.
+    columns:
+      - name: duty_id
+        data_tests: [not_null, unique]
+      - name: fdp_rule_id
+        description: Every flying duty must land in exactly one report-time band.
+        data_tests: [not_null]
+      - name: max_fdp_h
+        data_tests: [not_null]
