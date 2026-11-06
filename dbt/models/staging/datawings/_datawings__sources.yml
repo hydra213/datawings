@@ -1,11 +1,11 @@
 version: 2
 
 # Bronze = the CSVs exactly as delivered, all text, landed by `uv run ingest`.
-# Tests here are warn-only: dirty source data is expected and is what silver handles.
-# The failing counts are findings (docs/findings.md). In silver the same rules are errors.
+# Known-dirty tests warn: dirty source data is expected and is what staging handles.
+# The failing counts are findings (docs/findings.md). In staging the same rules are errors.
 
 sources:
-  - name: bronze
+  - name: datawings
     schema: bronze
     loaded_at_field: "cast(_loaded_at as timestamp)"
     freshness:
@@ -32,7 +32,7 @@ sources:
             data_tests:
               - relationships:
                   arguments:
-                    to: "source('bronze', 'crew')"
+                    to: "source('datawings', 'crew')"
                     field: crew_id
           - name: expiry_date
             data_tests:
@@ -47,7 +47,7 @@ sources:
             data_tests:
               - relationships:
                   arguments:
-                    to: "source('bronze', 'crew')"
+                    to: "source('datawings', 'crew')"
                     field: crew_id
           - name: duty_type
             data_tests:
@@ -67,14 +67,15 @@ sources:
             data_tests:
               - relationships:
                   arguments:
-                    to: "source('bronze', 'duty')"
+                    to: "source('datawings', 'duty')"
                     field: duty_id
           - name: flight_key
             data_tests:
               - relationships:
                   arguments:
-                    to: "source('bronze', 'flight')"
+                    to: "source('datawings', 'flight')"
                     field: flight_key
+                  config: {severity: warn}  # known finding, see docs/findings.md
 
       - name: flight
         columns:
@@ -93,10 +94,13 @@ sources:
             data_tests:
               - relationships:
                   arguments:
-                    to: "source('bronze', 'crew')"
+                    to: "source('datawings', 'crew')"
                     field: crew_id
+                  config: {severity: warn}  # known finding, see docs/findings.md
           - name: resolution_action
-            data_tests: [not_null]
+            data_tests:
+              - not_null:
+                  config: {severity: warn}  # known finding, see docs/findings.md
 
       - name: ftl_rule
         columns:

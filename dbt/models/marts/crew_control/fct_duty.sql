@@ -7,7 +7,7 @@
 
 with flying as (
     select *
-    from {{ ref('silver_duty') }}
+    from {{ ref('stg_datawings__duty') }}
     where duty_type = 'FLIGHT'
 ),
 
@@ -15,7 +15,7 @@ flight_crew_per_flight as (
     select
         flight_key,
         count(*) filter (where is_flight_crew) as flight_crew
-    from {{ ref('silver_duty_leg') }}
+    from {{ ref('stg_datawings__duty_leg') }}
     group by flight_key
 ),
 
@@ -24,13 +24,13 @@ duty_crewing as (
     select
         l.duty_id,
         max(f.flight_crew) as max_flight_crew
-    from {{ ref('silver_duty_leg') }} as l
+    from {{ ref('stg_datawings__duty_leg') }} as l
     inner join flight_crew_per_flight as f on l.flight_key = f.flight_key
     group by l.duty_id
 ),
 
 rules as (
-    select * from {{ ref('silver_ftl_rule') }}
+    select * from {{ ref('stg_datawings__ftl_rule') }}
 ),
 
 bands as (

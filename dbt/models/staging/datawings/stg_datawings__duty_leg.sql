@@ -9,6 +9,6 @@ select
     trim(l.role) in ('CAPT', 'FO') as is_flight_crew,
     upper(trim(l.is_operating)) = 'Y' as is_operating,
     f.flight_key is null as dq_orphan_flight
-from {{ source('bronze', 'duty_leg') }} as l
-left join {{ source('bronze', 'flight') }} as f
+from {{ source('datawings', 'duty_leg') }} as l
+left join {{ source('datawings', 'flight') }} as f
     on trim(l.flight_key) = trim(f.flight_key)

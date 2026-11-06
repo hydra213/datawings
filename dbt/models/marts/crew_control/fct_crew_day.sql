@@ -21,7 +21,7 @@ with window_bounds as (
     select
         min(duty_date) as first_date,
         max(duty_date) as last_date
-    from {{ ref('silver_duty') }}
+    from {{ ref('stg_datawings__duty') }}
 ),
 
 spine as (
@@ -53,7 +53,7 @@ daily_duty as (
         ) as duty_h,
         bool_or(duty_type in ('DAYOFF', 'LEAVE')) as is_day_off,
         string_agg(distinct duty_type, '+' order by duty_type) as duty_types
-    from {{ ref('silver_duty') }}
+    from {{ ref('stg_datawings__duty') }}
     group by crew_id, duty_date
 ),
 
@@ -63,8 +63,8 @@ daily_block as (
         f.sched_dep_date_local as cal_date,
         sum(f.actual_block_min) / 60.0 as block_h,
         count(*) as legs
-    from {{ ref('silver_duty_leg') }} as l
-    inner join {{ ref('silver_flight') }} as f on l.flight_key = f.flight_key
+    from {{ ref('stg_datawings__duty_leg') }} as l
+    inner join {{ ref('stg_datawings__flight') }} as f on l.flight_key = f.flight_key
     where
         l.is_operating
         and f.status <> 'CANCEL'
@@ -77,7 +77,7 @@ limits as (
         max(limit_hours) filter (where rule_id = 'FLT28-01') as max_block_28d_h,
         max(limit_hours) filter (where rule_id = 'OFF7-01') as min_days_off_7d,
         max(limit_hours) filter (where rule_id = 'OFF28-01') as min_days_off_28d
-    from {{ ref('silver_ftl_rule') }}
+    from {{ ref('stg_datawings__ftl_rule') }}
 ),
 
 daily as (

@@ -1,5 +1,5 @@
 with crew as (
-    select * from {{ ref('silver_crew') }}
+    select * from {{ ref('stg_datawings__crew') }}
 )
 
 select

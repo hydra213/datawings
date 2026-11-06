@@ -23,6 +23,6 @@ select
     trim(c.status) as status,
     r.clean_rank is null as dq_rank_unmapped,
     trim(c.rank) <> coalesce(r.clean_rank, '') as dq_rank_variant
-from {{ source('bronze', 'crew') }} as c
+from {{ source('datawings', 'crew') }} as c
 left join rank_map as r
     on upper(trim(c.rank)) = r.rank_key

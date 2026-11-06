@@ -39,3 +39,20 @@ models:
         data_tests: [not_null]
       - name: block_28d_h
         data_tests: [not_null]
+  - name: fct_leg_qualification
+    description: >
+      One row per operated leg x required qualification, with validity derived from the
+      qualification dates on the leg's local departure date (not the source status flag).
+    columns:
+      - name: leg_qual_id
+        data_tests: [not_null, unique]
+      - name: validity
+        data_tests:
+          - accepted_values:
+              arguments: {values: ['VALID', 'EXPIRED', 'NOT_YET_ISSUED', 'MISSING']}
+      - name: crew_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_crew')
+                field: crew_id

@@ -12,6 +12,7 @@ dependencies = [
     "matplotlib>=3.9",
     "plotly>=5.24",
     "dbt-duckdb>=1.11.1",
+    "streamlit>=1.66.1",
 ]
 
 [project.scripts]

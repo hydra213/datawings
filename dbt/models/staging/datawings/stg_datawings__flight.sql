@@ -17,4 +17,4 @@ select
         as actual_block_min,
     cast(timezone('UTC', try_cast(sched_dep_utc as timestamptz)) + interval 4 hour as date)
         as sched_dep_date_local
-from {{ source('bronze', 'flight') }}
+from {{ source('datawings', 'flight') }}
