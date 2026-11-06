@@ -94,5 +94,5 @@ tests/                            pytest parity checks
 
 ## Data
 
-The source data and data dictionary are not included in this repo as it is considered proprietary by Emirates. Nothing in this repo contains crew records or flight data.
+The source data and data dictionary are not included in this repo.
 
