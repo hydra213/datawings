@@ -8,23 +8,7 @@
 -- source status flag is kept only to compare (status_reported), never to decide.
 
 with legs as (
-    select
-        l.duty_leg_id,
-        l.duty_id,
-        l.crew_id,
-        l.flight_key,
-        l.leg_role,
-        l.is_flight_crew,
-        f.flight_no,
-        f.dep_station,
-        f.arr_station,
-        f.aircraft_type,
-        f.sched_dep_date_local as leg_date
-    from {{ ref('stg_datawings__duty_leg') }} as l
-    inner join {{ ref('stg_datawings__flight') }} as f on l.flight_key = f.flight_key
-    where
-        l.is_operating
-        and f.status <> 'CANCEL'
+    select * from {{ ref('int_operated_legs_joined_to_flights') }}
 ),
 
 required as (

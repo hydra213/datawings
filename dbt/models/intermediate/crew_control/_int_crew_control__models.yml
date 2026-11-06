@@ -1,0 +1,5 @@
+version: 2
+
+models:
+  - name: int_operated_legs_joined_to_flights
+    description: Operated, non-cancelled legs with flight attributes. Ephemeral.

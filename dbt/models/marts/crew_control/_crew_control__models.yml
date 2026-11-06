@@ -56,3 +56,42 @@ models:
               arguments:
                 to: ref('dim_crew')
                 field: crew_id
+  - name: dim_date
+    description: One row per local date in the roster window. Conformed date dimension.
+    columns:
+      - name: date_day
+        data_tests: [not_null, unique]
+  - name: fct_flight
+    description: >
+      One row per flight leg (all statuses). Crew counts, legality, FDP and disruption rolled
+      up to the flight.
+    columns:
+      - name: flight_key
+        data_tests: [not_null, unique]
+      - name: flight_date
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_day
+
+  # Board-shaped tables: pre-aggregated, carry fleet + crew_group so the app never joins.
+  - name: fdp_breaches_by_band
+    description: FDP breach counts per report band x fleet x crew group (board section 2).
+    columns:
+      - name: row_key
+        description: rule|fleet|group. Unique = the grain is what we say it is.
+        data_tests: [not_null, unique]
+      - name: duties
+        data_tests: [not_null]
+  - name: qualification_lapses_by_crew
+    description: One row per crew x qualification type flown without (board section 1).
+    columns:
+      - name: legs
+        data_tests: [not_null]
+  - name: crew_day_risk
+    description: fct_crew_day + crew attributes + near-limit flag (board section 3).
+    columns:
+      - name: crew_day_id
+        data_tests: [not_null, unique]

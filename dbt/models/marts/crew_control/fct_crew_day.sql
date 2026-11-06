@@ -59,16 +59,12 @@ daily_duty as (
 
 daily_block as (
     select
-        l.crew_id,
-        f.sched_dep_date_local as cal_date,
-        sum(f.actual_block_min) / 60.0 as block_h,
+        crew_id,
+        leg_date as cal_date,
+        sum(actual_block_min) / 60.0 as block_h,
         count(*) as legs
-    from {{ ref('stg_datawings__duty_leg') }} as l
-    inner join {{ ref('stg_datawings__flight') }} as f on l.flight_key = f.flight_key
-    where
-        l.is_operating
-        and f.status <> 'CANCEL'
-    group by l.crew_id, f.sched_dep_date_local
+    from {{ ref('int_operated_legs_joined_to_flights') }}
+    group by crew_id, leg_date
 ),
 
 limits as (

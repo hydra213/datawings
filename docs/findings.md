@@ -21,6 +21,9 @@ Running log of data issues, decisions and assumptions. This becomes a slide.
 | 15 | 2026-11-05 | ftl_rule | 22:00–04:59 band wraps midnight; no duties report 18:00–21:59 (FDP-05 unused) | band split to minutes in silver, wrap handled in gold join | — |
 | 16 | 2026-11-05 | fct_duty | **385 of 30,942 flying duties (1.2%) breached FDP, 353 crew.** 191 were rostered over the limit; 264 ran over on the day. 06:00–07:59 band breaches at 4.6%, 2-sector duties at 5.3% | gold.fct_duty | headline |
 | 17 | 2026-11-05 | (method) | augmentation from flight crew count on the duty's flights: 3 → +4h, 4+ → +7h; band picked from **planned** local report time | **assume**, documented in fct_duty.sql | drives limits |
+| 18 | 2026-11-06 | fct_flight | **464 of 3,248 flights (14%) departed with at least one crew member not legally qualified**; 12 with someone holding no type rating for the aircraft at all | marts: `fct_flight.is_illegal_crew`, `has_missing_type_rating` | headline: per flight, how ops thinks |
+| 19 | 2026-11-06 | fct_flight | 188 flights carried crew whose duty that day ended over the FDP limit | `fct_flight.crew_on_fdp_breach_duty` | 188 flights |
+| 20 | 2026-11-06 | fct_flight × disruption | flights with a crew disruption (sick / no-show / misconnect) had a crew member on an FDP-breach duty 7.5% of the time vs 5.2% without | joined in `fct_flight`; disruption explains some of the "ran over on the day" breaches, not most | modest |
 
 <!-- profile:start -->
 
