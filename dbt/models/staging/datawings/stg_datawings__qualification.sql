@@ -8,4 +8,4 @@ select
     try_cast(issue_date as date) as issue_date,
     try_cast(expiry_date as date) as expiry_date,
     trim(status) as status_reported
-from {{ source('bronze', 'qualification') }}
+from {{ source('datawings', 'qualification') }}

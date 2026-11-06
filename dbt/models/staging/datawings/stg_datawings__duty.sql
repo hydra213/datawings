@@ -11,7 +11,7 @@ with typed as (
         try_cast(actual_report_utc as timestamptz) as actual_report_utc,
         try_cast(actual_release_utc as timestamptz) as actual_release_utc,
         coalesce(try_cast(sectors as integer), 0) as sectors
-    from {{ source('bronze', 'duty') }}
+    from {{ source('datawings', 'duty') }}
 ),
 
 same_day as (

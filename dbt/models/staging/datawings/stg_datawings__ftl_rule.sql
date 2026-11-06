@@ -16,4 +16,4 @@ select
     try_cast(reduction_per_extra_sector_hours as double) as reduction_per_extra_sector_hours,
     try_cast(floor_hours as double) as floor_hours,
     nullif(trim(notes), '') as notes
-from {{ source('bronze', 'ftl_rule') }}
+from {{ source('datawings', 'ftl_rule') }}

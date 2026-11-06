@@ -10,6 +10,6 @@ select
     try_cast(e.delay_min_attributed as integer) as delay_min_attributed,
     nullif(trim(e.notes), '') as notes,
     nullif(trim(e.crew_id), '') is not null and c.crew_id is null as dq_unknown_crew
-from {{ source('bronze', 'disruption_event') }} as e
-left join {{ source('bronze', 'crew') }} as c
+from {{ source('datawings', 'disruption_event') }} as e
+left join {{ source('datawings', 'crew') }} as c
     on trim(e.crew_id) = trim(c.crew_id)

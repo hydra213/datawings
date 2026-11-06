@@ -1,10 +1,10 @@
 version: 2
 
 # Silver = typed, trimmed, conformed. Every row kept; problems become dq_* flags.
-# These tests are errors: if one fails, a silver rule is wrong or the source changed.
+# These tests are errors: if one fails, a staging rule is wrong or the source changed.
 
 models:
-  - name: silver_crew
+  - name: stg_datawings__crew
     columns:
       - name: crew_id
         data_tests: [not_null, unique]
@@ -15,7 +15,7 @@ models:
       - name: join_date
         data_tests: [not_null]
 
-  - name: silver_qualification
+  - name: stg_datawings__qualification
     columns:
       - name: qual_id
         data_tests: [not_null, unique]
@@ -23,12 +23,12 @@ models:
         data_tests:
           - relationships:
               arguments:
-                to: "ref('silver_crew')"
+                to: "ref('stg_datawings__crew')"
                 field: crew_id
       - name: expiry_date
         data_tests: [not_null]
 
-  - name: silver_duty
+  - name: stg_datawings__duty
     columns:
       - name: duty_id
         data_tests: [not_null, unique]
@@ -36,12 +36,12 @@ models:
         data_tests:
           - relationships:
               arguments:
-                to: "ref('silver_crew')"
+                to: "ref('stg_datawings__crew')"
                 field: crew_id
       - name: duty_date
         data_tests: [not_null]
 
-  - name: silver_duty_leg
+  - name: stg_datawings__duty_leg
     columns:
       - name: duty_leg_id
         data_tests: [not_null, unique]
@@ -49,24 +49,24 @@ models:
         data_tests:
           - relationships:
               arguments:
-                to: "ref('silver_duty')"
+                to: "ref('stg_datawings__duty')"
                 field: duty_id
 
-  - name: silver_flight
+  - name: stg_datawings__flight
     columns:
       - name: flight_key
         data_tests: [not_null, unique]
       - name: sched_dep_utc
         data_tests: [not_null]
 
-  - name: silver_disruption_event
+  - name: stg_datawings__disruption_event
     columns:
       - name: event_id
         data_tests: [not_null, unique]
       - name: resolution_action
         data_tests: [not_null]
 
-  - name: silver_ftl_rule
+  - name: stg_datawings__ftl_rule
     columns:
       - name: rule_id
         data_tests: [not_null, unique]

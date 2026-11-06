@@ -20,8 +20,8 @@ with legs as (
         f.arr_station,
         f.aircraft_type,
         f.sched_dep_date_local as leg_date
-    from {{ ref('silver_duty_leg') }} as l
-    inner join {{ ref('silver_flight') }} as f on l.flight_key = f.flight_key
+    from {{ ref('stg_datawings__duty_leg') }} as l
+    inner join {{ ref('stg_datawings__flight') }} as f on l.flight_key = f.flight_key
     where
         l.is_operating
         and f.status <> 'CANCEL'
@@ -52,7 +52,7 @@ matched as (
         q.status_reported,
         lr.leg_date between q.issue_date and q.expiry_date as covers_leg_date
     from leg_requirements as lr
-    inner join {{ ref('silver_qualification') }} as q
+    inner join {{ ref('stg_datawings__qualification') }} as q
         on
             lr.crew_id = q.crew_id
             and lr.qual_type = q.qual_type
