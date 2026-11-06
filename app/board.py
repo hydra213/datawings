@@ -1,4 +1,4 @@
-"""Crew Control FTL risk board, on the dbt gold layer.
+"""Crew Control FTL risk board, on the dbt marts.
 
 Run from the repo root:   uv run streamlit run app/board.py
 Reads data/datawings.duckdb read-only, one short connection per query, so `dbt build` can
@@ -44,13 +44,13 @@ def style(fig: go.Figure, height: int = 320) -> go.Figure:
 
 
 # ---------- filters (one row, above everything) ----------
-bounds = q("select min(cal_date) lo, max(cal_date) hi from gold.fct_crew_day").iloc[0]
+bounds = q("select min(date_day) lo, max(date_day) hi from marts.dim_date").iloc[0]
 lo, hi = bounds["lo"].date(), bounds["hi"].date()
 
 st.title("Crew Control: flight-time-limitation risk")
 st.caption(
     f"Datawings Airlines, hub DWB · roster window {lo:%d %b} – {hi:%d %b %Y} · "
-    "built on the dbt gold layer"
+    "built on the dbt marts"
 )
 
 f1, f2, f3 = st.columns([1, 1, 2])
@@ -58,38 +58,34 @@ fleet = f1.selectbox("Fleet", ["All", "A380", "B777"])
 group = f2.selectbox("Crew group", ["All", "FLIGHT", "CABIN"])
 as_of: date = f3.slider("Roster as of", min_value=lo, max_value=hi, value=hi, format="DD MMM")
 
+# Every mart carries fleet + crew_group, so one filter fits all of them: no joins in the app.
 FILTER = """
-    (? = 'All' or c.fleet = ?) and (? = 'All' or c.crew_group = ?)
+    (? = 'All' or fleet = ?) and (? = 'All' or crew_group = ?)
 """
 fp = (fleet, fleet, group, group)
 
 # ---------- KPI row ----------
 duty = q(
-    f"""select count(*) duties, sum(is_fdp_breach::int) breaches,
-               sum(is_planned_breach::int) planned, sum((is_fdp_breach and not is_planned_breach)::int) ran_over,
-               count(distinct crew_id) filter (where is_fdp_breach) crew
-        from gold.fct_duty d join gold.dim_crew c using (crew_id)
-        where not dq_negative_duty and {FILTER}""",
+    f"""select sum(duties) duties, sum(actual_breaches) breaches,
+               sum(planned_breaches) planned, sum(ran_over_breaches) ran_over
+        from marts.fdp_breaches_by_band where {FILTER}""",
     fp,
 ).iloc[0]
 qual = q(
-    f"""select count(distinct duty_leg_id) legs, count(distinct l.crew_id) crew,
-               count(distinct duty_leg_id) filter (where validity = 'MISSING') missing
-        from gold.fct_leg_qualification l join gold.dim_crew c using (crew_id)
-        where not is_valid and {FILTER}""",
+    f"""select sum(legs) legs, count(distinct crew_id) crew, sum(legs_missing) missing
+        from marts.qualification_lapses_by_crew where {FILTER}""",
     fp,
 ).iloc[0]
 cum = q(
-    f"""select count(distinct d.crew_id) filter (where is_duty_7d_breach) duty7,
-               count(distinct d.crew_id) filter (where is_block_28d_breach) block28,
-               count(distinct d.crew_id) filter (where is_days_off_7d_breach) off7
-        from gold.fct_crew_day d join gold.dim_crew c using (crew_id) where {FILTER}""",
+    f"""select count(distinct crew_id) filter (where is_duty_7d_breach) duty7,
+               count(distinct crew_id) filter (where is_block_28d_breach) block28,
+               count(distinct crew_id) filter (where is_days_off_7d_breach) off7
+        from marts.crew_day_risk where {FILTER}""",
     fp,
 ).iloc[0]
 tight = q(
-    f"""select count(*) n from gold.fct_crew_day d join gold.dim_crew c using (crew_id)
-        where d.cal_date = ? and c.status = 'ACTIVE'
-          and (duty_7d_headroom_h < 8 or block_28d_headroom_h < 10) and {FILTER}""",
+    f"""select count(*) n from marts.crew_day_risk
+        where cal_date = ? and is_near_limit and {FILTER}""",
     (as_of, *fp),
 ).iloc[0]["n"]
 
@@ -112,7 +108,7 @@ tile(
     "Flying duties over the FDP limit",
     f"{int(duty.breaches or 0):,}",
     f"{(duty.breaches or 0) / max(duty.duties, 1):.1%} of {int(duty.duties):,} duties · "
-    f"{int(duty.crew)} crew",
+    f"{int(duty.planned or 0)} rostered over",
 )
 tile(
     k3,
@@ -134,10 +130,9 @@ st.subheader("1 · Legality: crew operating on expired qualifications")
 left, right = st.columns([2, 3])
 
 by_type = q(
-    f"""select qual_type, count(distinct duty_leg_id) legs, count(distinct l.crew_id) crew,
-               median(days_expired) med_days
-        from gold.fct_leg_qualification l join gold.dim_crew c using (crew_id)
-        where not is_valid and {FILTER}
+    f"""select qual_type, sum(legs) legs, count(distinct crew_id) crew,
+               median(median_days_lapsed) med_days  -- median of crew medians: close enough for a hover
+        from marts.qualification_lapses_by_crew where {FILTER}
         group by 1 order by legs""",
     fp,
 )
@@ -161,12 +156,10 @@ fig.update_yaxes(tickfont={"size": 14, "color": INK})
 left.plotly_chart(style(fig, 260))
 
 offenders = q(
-    f"""select c.crew_full_name crew, c.rank, c.fleet, l.qual_type qualification,
-               count(distinct duty_leg_id) legs, max(days_expired) max_days_lapsed,
-               min(leg_date) first_leg, max(leg_date) last_leg
-        from gold.fct_leg_qualification l join gold.dim_crew c using (crew_id)
-        where not is_valid and {FILTER}
-        group by all order by legs desc, max_days_lapsed desc""",
+    f"""select crew_full_name crew, rank, fleet, qual_type qualification, legs,
+               max_days_lapsed, first_leg, last_leg
+        from marts.qualification_lapses_by_crew where {FILTER}
+        order by legs desc, max_days_lapsed desc""",
     fp,
 )
 right.caption("Who, and for how long (sorted by legs flown)")
@@ -184,19 +177,14 @@ right.dataframe(
 # ---------- 2. FDP ----------
 st.subheader("2 · Duty length: FDP breaches by report time")
 band = q(
-    f"""select fdp_rule_id, min(strftime(planned_report_local, '%H:00')) first_hour,
-               count(*) duties,
-               avg(is_planned_breach::int) planned_rate, avg(is_fdp_breach::int) actual_rate
-        from gold.fct_duty d join gold.dim_crew c using (crew_id)
-        where not dq_negative_duty and {FILTER}
-        group by 1 order by 1""",
+    f"""select fdp_rule_id, report_band_local, band_limit_h, sum(duties) duties,
+               sum(planned_breaches) / sum(duties) planned_rate,
+               sum(actual_breaches) / sum(duties) actual_rate
+        from marts.fdp_breaches_by_band where {FILTER}
+        group by all order by fdp_rule_id""",
     fp,
 )
-rules = q(
-    "select rule_id, report_band_local, limit_hours from silver.ftl_rule where rule_type = 'MAX_FDP'"
-)
-band = band.merge(rules, left_on="fdp_rule_id", right_on="rule_id")
-band["label"] = band["report_band_local"] + " (" + band["limit_hours"].map("{:.0f} h".format) + ")"
+band["label"] = band["report_band_local"] + " (" + band["band_limit_h"].map("{:.0f} h".format) + ")"
 
 fig = go.Figure()
 for col, name, color in [
@@ -235,9 +223,9 @@ duties breach about 40× as often as single-sector ones.
 st.subheader("3 · Fatigue: cumulative limits and who is close today")
 trend = q(
     f"""select cal_date,
-               count(distinct d.crew_id) filter (where is_duty_7d_breach) duty7,
-               count(distinct d.crew_id) filter (where is_block_28d_breach) block28
-        from gold.fct_crew_day d join gold.dim_crew c using (crew_id)
+               count(*) filter (where is_duty_7d_breach) duty7,
+               count(*) filter (where is_block_28d_breach) block28
+        from marts.crew_day_risk
         where {FILTER} group by 1 order by 1""",
     fp,
 )
@@ -264,13 +252,13 @@ c1.caption(
 c1.plotly_chart(style(fig))
 
 near = q(
-    f"""select c.crew_full_name crew, c.rank, c.fleet,
+    f"""select crew_full_name crew, rank, fleet,
                round(duty_7d_h, 1) duty_7d_h, round(duty_7d_headroom_h, 1) duty_headroom_h,
                round(block_28d_h, 1) block_28d_h, round(block_28d_headroom_h, 1) block_headroom_h,
                days_off_7d
-        from gold.fct_crew_day d join gold.dim_crew c using (crew_id)
-        where d.cal_date = ? and c.status = 'ACTIVE' and {FILTER}
-        order by least(duty_7d_headroom_h / 60, block_28d_headroom_h / 100) limit 50""",
+        from marts.crew_day_risk
+        where cal_date = ? and status = 'ACTIVE' and {FILTER}
+        order by tightest_headroom_pct limit 50""",
     (as_of, *fp),
 )
 c2.caption(f"Closest to a limit on {as_of:%d %b}: don't call these out for reserve")
