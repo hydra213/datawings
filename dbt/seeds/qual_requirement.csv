@@ -1,0 +1,6 @@
+qual_type,flight_crew_only,per_aircraft
+LICENCE,false,false
+MEDICAL,false,false
+RECURRENT,false,false
+TYPE_RATING,false,true
+RECENCY,true,false

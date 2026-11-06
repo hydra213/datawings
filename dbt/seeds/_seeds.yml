@@ -13,3 +13,11 @@ seeds:
           - accepted_values:
               arguments:
                 values: ["CAPT", "FO", "PURSER", "CABIN"]
+  - name: qual_requirement
+    description: >
+      Which qualifications a crew member needs to operate a leg. Our own rule, inferred from
+      who holds what (cabin: 4 types, flight crew: + RECENCY). per_aircraft = must match the
+      leg's aircraft type.
+    columns:
+      - name: qual_type
+        data_tests: [not_null, unique]
