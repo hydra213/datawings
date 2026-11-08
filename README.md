@@ -1,8 +1,7 @@
 ![Datawings Airlines Practical](docs/images/Introduction.png)
 
-A data product for the **Datawings Airlines practical**, **Cabin Crew** track: step into Crew Control and
-trace duties across rosters, qualifications and flight-time-limitation (FTL) rules. Seven messy CSVs
-go in. A tested dbt warehouse and a Crew Control risk board come out, answering one question:
+A data product for the **Datawings Airlines practical**, **Cabin Crew** track: 7 messy CSVs
+go in as source data. A full E2E ingestion pipeline with Python, dbt, and a streamlit board that answers the following question:
 **are our crew legal and rested to fly, and if not, is it a planning problem or a disruption problem?**
 
 <p>
@@ -21,12 +20,12 @@ data/raw/*.csv ─ingest─▶ raw ─dbt─▶ staging ─▶ intermediate ─�
                               ref.rank_map, ref.qual_requirement (seeds)
 ```
 
-- **Ingestion** (`uv run ingest`) lands every CSV in the `bronze` schema as-is, all text, plus
-  `_source_file` and `_loaded_at`. Stand-in for Fivetran / ADF / Snowpipe.
+- **Ingestion** (`uv run ingest`) lands every CSV in the `raw` schema as-is, all text, plus
+  `_source_file` and `_loaded_at`. 
 - **dbt** is the T only, in the standard [dbt project layout](https://docs.getdbt.com/best-practices/how-we-structure/1-guide-overview):
-  bronze is declared as the `datawings` source; `staging` (views) types and cleans it 1:1;
+  raw is declared as the `datawings` source; `staging` (views) types and cleans it 1:1;
   `intermediate` (ephemeral) holds reusable joins; `marts` (tables) is what consumers read.
-- **Seeds** are only reference data *we* own and version in git (`rank_map`, `qual_requirement`).
+- **Seeds** are only reference data that we own and version in git (`rank_map`, `qual_requirement`).
   The FTL rulebook is external (regulator / policy), so it's ingested like any other source.
 - **Tests**: 98 dbt tests. Source tests that fail on known data issues warn; everything else is an
   error, so a new problem in the source breaks the build.
@@ -55,6 +54,13 @@ data/raw/*.csv ─ingest─▶ raw ─dbt─▶ staging ─▶ intermediate ─�
 | `fdp_breaches_by_band` | band × fleet × crew group | board section 2 (counts, so filters re-sum) |
 | `qualification_lapses_by_crew` | crew × qualification type | board section 1 |
 | `crew_day_risk` | crew member × date | board section 3, with the near-limit rule as dbt vars |
+
+
+### Lineage
+
+<p>
+  <img src="docs/images/lineage.png" alt="dbt models lienage" width="62%">
+</p>
 
 ## How to run
 ```powershell

@@ -14,13 +14,13 @@ from datawings.config import DB_PATH, RAW_DIR, TABLES
 
 
 def ingest(con: duckdb.DuckDBPyConnection) -> dict[str, int]:
-    con.execute("create schema if not exists bronze")
+    con.execute("create schema if not exists raw")
     counts = {}
     for table in TABLES:
         path = (RAW_DIR / f"{table}.csv").as_posix()
         con.execute(
             f"""
-            create or replace table bronze.{table} as
+            create or replace table raw.{table} as
             select
                 * exclude (filename),
                 filename          as _source_file,
@@ -28,7 +28,7 @@ def ingest(con: duckdb.DuckDBPyConnection) -> dict[str, int]:
             from read_csv('{path}', header = true, all_varchar = true, filename = true)
             """
         )
-        counts[table] = con.execute(f"select count(*) from bronze.{table}").fetchone()[0]
+        counts[table] = con.execute(f"select count(*) from raw.{table}").fetchone()[0]
     return counts
 
 
@@ -42,7 +42,7 @@ def main() -> None:
         counts = ingest(con)
 
     for table, n in counts.items():
-        print(f"bronze.{table:<18} {n:>8,} rows")
+        print(f"raw.{table:<18} {n:>8,} rows")
     print(f"Landed {len(counts)} tables in {DB_PATH.name}")
 
 
