@@ -1,6 +1,6 @@
 -- One row per calendar date in the roster window (local DWB dates).
 -- The conformed date dimension: every fact's date column joins here.
--- UAE weekend has been Sat-Sun since 2022.
+-- -- Dates based on UAE date since weekend is from SAT-SUN.
 
 with all_dates as (
     select sched_dep_date_local as d from {{ ref('stg_datawings__flight') }}
@@ -32,5 +32,5 @@ select
     cast(date_trunc('week', date_day) as date) as week_start,  -- Monday
     weekofyear(date_day) as iso_week,
     strftime(date_day, '%Y-%m') as month_label,
-    row_number() over (order by date_day) as roster_day_n   -- day 1 = first date in the data
+    row_number() over (order by date_day) as roster_day_n   -- day 1 = first date
 from days

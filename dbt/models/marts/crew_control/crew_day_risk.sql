@@ -1,5 +1,5 @@
--- Board section 3 + "near a limit" KPI. fct_crew_day flattened with the crew attributes
--- the board filters on, plus the "near a limit" rule, which is business logic and so
+-- Board section 3: fct_crew_day flattened with the crew attributes
+-- the board filters on, plus the "near a limit" rule, which is business logic so it
 -- lives here (thresholds are dbt vars), not in the Streamlit app.
 
 select

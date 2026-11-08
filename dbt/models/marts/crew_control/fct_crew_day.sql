@@ -5,14 +5,14 @@
 --   OFF7-01   min days off in any 7 consecutive days
 --   OFF28-01  min days off in any 28 consecutive days
 --
--- Assumptions (findings.md):
+-- Assumptions:
 --   - a duty's hours count on its duty_date, even if it runs past midnight
 --   - block hours count on the flight's local scheduled departure date
 --   - STANDBY counts toward duty hours at var('standby_duty_factor') (default 0.25, the usual
 --     treatment of home standby; airport standby would be 1.0). This one choice moves the
 --     7-day breach count by more than 30x, so it's a dbt var, not a buried constant
---   - DAYOFF and LEAVE count as days off; SICK doesn't (it isn't rest)
---   - a date with NO roster record (~11.6k crew-days, 1-6 per crew) is treated as a day off:
+--   - DAYOFF and LEAVE count as days off; SICK doesn't count as day off
+--   - a date with NO roster record
 --     nothing rostered = not working. Counting them as worked would invent ~650 extra
 --     days-off breaches. has_roster_record lets you see them
 --   - a window is only judged once it has its full length of history
@@ -127,7 +127,7 @@ select
     l.max_duty_7d_h - r.duty_7d_h as duty_7d_headroom_h,
     l.max_block_28d_h - r.block_28d_h as block_28d_headroom_h,
 
-    -- breaches. Cumulative hours can only go over, so they're judged from day 1;
+    -- breaches. Cumulative hours can only go over, so they're judged from day 1.
     -- "at least N days off" needs a full window, or every early day would look like a breach
     r.duty_7d_h > l.max_duty_7d_h as is_duty_7d_breach,
     r.block_28d_h > l.max_block_28d_h as is_block_28d_breach,

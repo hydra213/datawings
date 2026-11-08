@@ -1,4 +1,4 @@
-"""Datawings Airlines — Cabin Crew challenge."""
+"""Datawings Airlines - Cabin Crew challenge."""
 
 from datawings.config import RAW_DIR, TABLES
 from datawings.db import connect, read

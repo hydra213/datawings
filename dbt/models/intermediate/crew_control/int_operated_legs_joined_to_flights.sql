@@ -1,6 +1,6 @@
 -- One row per leg a crew member actually OPERATED (not deadheading) on a flight that
 -- wasn't cancelled, with the flight's attributes. Shared by fct_leg_qualification
--- (was this person legal on this leg?) and fct_crew_day (block hours per day), which
+-- (e.g. was this person legal on this leg?) and fct_crew_day (block hours per day), which
 -- used to repeat this join and filter each.
 
 select

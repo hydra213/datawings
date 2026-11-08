@@ -44,7 +44,7 @@ matched as (
 ),
 
 best as (
-    -- one record per leg x qual: a covering one if any exists, else the latest expired one
+    -- one record per leg x qualification: a covering one if any exists, else the latest expired one
     select *
     from matched
     qualify row_number() over (

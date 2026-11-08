@@ -1,5 +1,5 @@
 -- For the board, section 2. FDP breach COUNTS per report band x fleet x crew group.
--- Counts, not rates: the board filters by fleet / group and re-sums, and you can't
+-- Counts, not rates: the board filters by fleet / group and re-sums, as cannot
 -- average averages. Rates are computed at read time.
 
 select

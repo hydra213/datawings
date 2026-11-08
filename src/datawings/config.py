@@ -10,10 +10,10 @@ INTERIM_DIR = DATA_DIR / "interim"
 PROCESSED_DIR = DATA_DIR / "processed"
 DBT_DIR = ROOT / "dbt"
 FIGURES_DIR = ROOT / "reports" / "figures"
-DB_PATH = DATA_DIR / "datawings.duckdb"  # bronze landed by ingest.py, silver/gold built by dbt
+DB_PATH = DATA_DIR / "datawings.duckdb"
 
-# Source files in data/raw — each lands as bronze.<name>. ftl_rule is external (regulator /
-# policy) so it's ingested like any other source; only our own mappings are dbt seeds.
+# Source files in data/raw — each lands as source.<name>. ftl_rule is external (regulator /
+# policy) so it's ingested like any other source; only mappings like rank and qualifications are used as dbt sereds
 TABLES = [
     "crew",
     "qualification",

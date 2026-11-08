@@ -1,11 +1,8 @@
-"""Ingestion: the E and L of ELT. Lands every raw CSV in the bronze schema, as delivered.
+"""Ingestion: Lands all the raw csv data into raw to be read later by dbt to push into staging
 
-This is the stand-in for Fivetran / ADF / Snowpipe. dbt never loads source data; it starts
-from what this script lands. Swap this for the real roster feed and nothing downstream changes.
-
-Bronze contract:
-- one table per source file, same name (bronze.crew, bronze.duty, ...)
-- every column as text, exactly as delivered — no fixes, no typing
+Raw layer contract:
+- one table per source file with the same name
+- every column as text, exactly as delivered - no fixes, no typing
 - plus _source_file and _loaded_at for lineage
 
 Run:  uv run ingest

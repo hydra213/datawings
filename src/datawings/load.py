@@ -1,7 +1,3 @@
-"""pandas loaders straight off the raw CSVs, bypassing dbt. Mechanical typing only.
-Use these for profiling, and for parity checks: answer a question in pandas from raw,
-then check it matches what the dbt gold layer says."""
-
 import pandas as pd
 
 from datawings.config import RAW_DIR, TABLES
@@ -24,14 +20,14 @@ DATE_COLS: dict[str, list[str]] = {
     "qualification": ["issue_date", "expiry_date"],
 }
 
-# Dates in dd/mm/yyyy — watch out, these are not ISO like the rest
+# Dates in dd/mm/yyyy (because of source data)
 DAYFIRST_DATE_COLS: dict[str, list[str]] = {
     "crew": ["join_date", "leave_date"],
 }
 
 
 def load_table(name: str, parse: bool = True) -> pd.DataFrame:
-    """Load one raw CSV. parse=False gives you everything as strings, for profiling."""
+    """Load one raw CSV. parse=False gives you everything as strings, for profiling"""
     if name not in TABLES:
         raise ValueError(f"Unknown table {name!r}. Expected one of {TABLES}")
     path = RAW_DIR / f"{name}.csv"
@@ -40,7 +36,7 @@ def load_table(name: str, parse: bool = True) -> pd.DataFrame:
         return pd.read_csv(path, dtype=str, keep_default_na=False)
 
     # IDs are labels, not numbers: read every *_id / *_key column as text. Without this,
-    # sparse ones like duty.rotation_id (blank on non-flying days) come back as mixed types.
+    # sparse ones like duty.rotation_id (blank on non-flying days) come back as mixed types
     header = pd.read_csv(path, nrows=0).columns
     id_cols = {c: "string" for c in header if c.endswith(("_id", "_key"))}
     df = pd.read_csv(path, dtype=id_cols)

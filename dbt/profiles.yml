@@ -1,5 +1,3 @@
-# dbt finds this file because you run dbt from the dbt/ folder.
-# No credentials needed — DuckDB is just a local file.
 datawings:
   target: dev
   outputs:

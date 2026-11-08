@@ -13,12 +13,6 @@ test-paths: ["tests"]
 target-path: "target"
 clean-targets: ["target", "dbt_packages"]
 
-# Bronze is landed by `uv run ingest` before dbt runs; dbt declares it as the `datawings`
-# source. Layout follows the dbt project-structure guide:
-#   staging/       1:1 with source tables: rename, cast, flag. Views, `staging` schema.
-#   intermediate/  reusable building blocks between staging and marts. Ephemeral (CTEs).
-#   marts/         business entities: facts, dims, and the board's tables. `marts` schema.
-# Run dbt from this dbt/ folder (profiles.yml and relative paths assume it).
 
 models:
   datawings:
@@ -35,5 +29,4 @@ seeds:
   datawings:
     +schema: ref
 
-# Source-test severity is set per test in _datawings__sources.yml (known findings warn,
-# everything else errors).
+

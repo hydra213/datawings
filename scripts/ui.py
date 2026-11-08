@@ -1,9 +1,5 @@
 """Open the DuckDB UI on the warehouse, read-only, with the project's own DuckDB version.
 
-The UI keeps its notebooks in its own small database, so the connection itself must be
-writable: open in-memory and ATTACH the warehouse read-only. Tables live under `dw`
-(e.g. `select * from dw.gold.fct_duty`, or run `use dw;` first).
-
 Run:  uv run python scripts/ui.py      (press Enter to stop, before running dbt build)
 """
 

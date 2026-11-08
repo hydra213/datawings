@@ -1,9 +1,7 @@
-"""Read side of the warehouse. ingest.py lands bronze, dbt builds silver -> gold;
-Python only reads it.
+"""Connector for profiling.
 
-read_only=True by default, so a notebook doesn't lock the file — DuckDB allows one writer
-at a time, and `dbt build` needs to be that writer. If dbt complains the file is locked,
-restart the notebook kernel (or call con.close())."""
+read_only=True by default, so a notebook doesn't lock the file. DuckDB allows one writer
+at a time, and `dbt build` needs to be that writer."""
 
 import duckdb
 import pandas as pd

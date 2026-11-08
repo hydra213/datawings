@@ -1,8 +1,7 @@
 """Crew Control FTL risk board, on the dbt marts.
 
 Run from the repo root:   uv run streamlit run app/board.py
-Reads data/datawings.duckdb read-only, one short connection per query, so `dbt build` can
-still run while the board is open (refresh the page afterwards).
+Reads data/datawings.duckdb read-only
 """
 
 from datetime import date
@@ -14,7 +13,7 @@ import streamlit as st
 
 from datawings.config import DB_PATH
 
-# Palette: categorical slots 1-2 of the dataviz reference palette (validated light mode).
+# Palette
 BLUE, ORANGE = "#2a78d6", "#eb6834"
 INK, INK_2, GRID = "#0b0b0b", "#52514e", "#e7e6e2"
 
@@ -43,7 +42,7 @@ def style(fig: go.Figure, height: int = 320) -> go.Figure:
     return fig
 
 
-# ---------- filters (one row, above everything) ----------
+#  filters (one row, above everything)
 bounds = q("select min(date_day) lo, max(date_day) hi from marts.dim_date").iloc[0]
 lo, hi = bounds["lo"].date(), bounds["hi"].date()
 
@@ -58,13 +57,13 @@ fleet = f1.selectbox("Fleet", ["All", "A380", "B777"])
 group = f2.selectbox("Crew group", ["All", "FLIGHT", "CABIN"])
 as_of: date = f3.slider("Roster as of", min_value=lo, max_value=hi, value=hi, format="DD MMM")
 
-# Every mart carries fleet + crew_group, so one filter fits all of them: no joins in the app.
+# Every mart carries fleet + crew_group, so one filter fits all of them: no joins in the app
 FILTER = """
     (? = 'All' or fleet = ?) and (? = 'All' or crew_group = ?)
 """
 fp = (fleet, fleet, group, group)
 
-# ---------- KPI row ----------
+#  KPI row
 duty = q(
     f"""select sum(duties) duties, sum(actual_breaches) breaches,
                sum(planned_breaches) planned, sum(ran_over_breaches) ran_over
@@ -125,7 +124,7 @@ tile(
 
 st.divider()
 
-# ---------- 1. qualifications ----------
+#  1. qualifications
 st.subheader("1 · Legality: crew operating on expired qualifications")
 left, right = st.columns([2, 3])
 
@@ -174,7 +173,7 @@ right.dataframe(
     },
 )
 
-# ---------- 2. FDP ----------
+#  2. FDP
 st.subheader("2 · Duty length: FDP breaches by report time")
 band = q(
     f"""select fdp_rule_id, report_band_local, band_limit_h, sum(duties) duties,
@@ -219,7 +218,7 @@ duties breach about 40× as often as single-sector ones.
 """
 )
 
-# ---------- 3. cumulative ----------
+#  3. cumulative
 st.subheader("3 · Fatigue: cumulative limits and who is close today")
 trend = q(
     f"""select cal_date,

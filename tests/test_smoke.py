@@ -1,5 +1,4 @@
-"""Smoke tests: raw data is present, and the bronze landing holds exactly what's in the CSVs.
-Add parity tests here as you go: a pandas answer from raw == the dbt gold answer."""
+"""Smoke tests: raw data is present, and the landing area holds exactly what's in the CSVs."""
 
 import pytest
 

@@ -28,7 +28,7 @@ ftl_rule: applied to duty (per duty) and per-crew rolling 7d / 28d windows
 - Qualification `status` flag isn't trustworthy — derive validity from issue/expiry vs the leg date.
 - `flight_no` is not unique per day — join on `flight_key`.
 
-## First-look mess (confirm and extend as you go)
+## First findings  
 
 - `crew.rank` has spelling variants (case, trailing spaces, `f/o`, `CC`, `PSR`, `First Officer` …).
 - `crew.join_date` / `leave_date` are dd/mm/yyyy; everything else is ISO.

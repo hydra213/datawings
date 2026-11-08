@@ -76,7 +76,7 @@ models:
                 to: ref('dim_date')
                 field: date_day
 
-  # Board-shaped tables: pre-aggregated, carry fleet + crew_group so the app never joins.
+  # Board-shaped tables: pre-aggregated, carry fleet + crew_group so the app never joins
   - name: fdp_breaches_by_band
     description: FDP breach counts per report band x fleet x crew group (board section 2).
     columns:
