@@ -59,7 +59,7 @@ data/raw/*.csv ─ingest─▶ raw ─dbt─▶ staging ─▶ intermediate ─�
 ### Lineage
 
 <p>
-  <img src="docs/images/lineage.png" alt="dbt models lienage" width="62%">
+  <img src="docs/images/lineage.png" alt="dbt models lienage">
 </p>
 
 ## How to run
